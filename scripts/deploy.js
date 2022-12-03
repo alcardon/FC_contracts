@@ -6,10 +6,19 @@ const { utils } = require("ethers");
 const R = require("ramda");
 
 const main = async () => {
-
   console.log("\n\n 📡 Deploying...\n");
 
-  const yourContract = await deploy("FixedToken") // <-- add in constructor args like line 16 vvvv
+  /*   const yourContract = await deploy("Minter"); // <-- add in constructor args like line 16 vvvv */
+  /*   const yourContract = await deploy("NFTCollection"); // <-- add in constructor args like line 16 vvvv */
+
+  /*   const tokenArgs = ["MulitaCoin", "MTC"]; */
+  const Minter = await hre.ethers.getContractFactory("Minter");
+  const minter = await Minter.deploy();
+  await minter.deployed(); // Deploy the contract
+
+  const NFTCollection = await hre.ethers.getContractFactory("NFTCollection");
+  const nft = await NFTCollection.deploy();
+  await nft.deployed(); // Deploy the contract
 
   // const exampleToken = await deploy("ExampleToken")
   // const examplePriceOracle = await deploy("ExamplePriceOracle")
@@ -35,7 +44,7 @@ const deploy = async (contractName, _args) => {
     " 📄",
     chalk.cyan(contractName),
     "deployed to:",
-    chalk.magenta(deployed.address),
+    chalk.magenta(deployed.address)
   );
 
   if (!encoded || encoded.length <= 2) return deployed;
