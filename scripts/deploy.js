@@ -13,12 +13,12 @@ const main = async () => {
 
   /*   const tokenArgs = ["MulitaCoin", "MTC"]; */
   const Minter = await hre.ethers.getContractFactory("Minter");
-  const minter = await Minter.deploy();
+  const minter = await Minter.deploy({gasPrice: 20000000000});
   await minter.deployed(); // Deploy the contract
 
-  const NFTCollection = await hre.ethers.getContractFactory("NFTCollection");
-  const nft = await NFTCollection.deploy();
-  await nft.deployed(); // Deploy the contract
+  // const NFTCollection = await hre.ethers.getContractFactory("NFTCollection");
+  // const nft = await NFTCollection.deploy();
+  // await nft.deployed(); // Deploy the contract
 
   // const exampleToken = await deploy("ExampleToken")
   // const examplePriceOracle = await deploy("ExamplePriceOracle")
