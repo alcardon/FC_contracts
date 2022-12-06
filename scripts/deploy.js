@@ -12,9 +12,12 @@ const main = async () => {
   /*   const yourContract = await deploy("NFTCollection"); // <-- add in constructor args like line 16 vvvv */
 
   /*   const tokenArgs = ["MulitaCoin", "MTC"]; */
-  const Minter = await hre.ethers.getContractFactory("Minter");
-  const minter = await Minter.deploy({gasPrice: 20000000000});
-  await minter.deployed(); // Deploy the contract
+  // const Minter = await hre.ethers.getContractFactory("Minter");
+  // const minter = await Minter.deploy({gasPrice: 20000000000});
+  // await minter.deployed(); // Deploy the contract
+  const MinterBUSD = await hre.ethers.getContractFactory("MinterBUSD");
+  const minterbusd = await MinterBUSD.deploy();
+  await minterbusd.deployed(); // Deploy the contract
 
   // const NFTCollection = await hre.ethers.getContractFactory("NFTCollection");
   // const nft = await NFTCollection.deploy();

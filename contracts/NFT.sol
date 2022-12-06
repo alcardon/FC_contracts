@@ -30,7 +30,7 @@ contract NFTCollection is ERC721Enumerable, Ownable {
     uint256 public constant MAX_MINT_PER_WALLET = 4;
 
     // The base link that leads to the image / video of the token
-    string public baseTokenURI = "https://api.funkycrocs.io/";
+    string public baseTokenURI = "ipfs://QmSWSp5WupP9D53gL3cFFga9Sobc4riqkDpFQqshL7k5mv";
 
     // List of addresses that have a number of reserved tokens for whitelist
     mapping (address => uint256) public whitelistReserved;
