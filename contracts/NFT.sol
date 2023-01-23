@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 
 contract MinterNFT {
     function register(uint token_id) public
@@ -13,35 +14,25 @@ contract MinterNFT {
 
 contract NFTCollection is ERC721Enumerable, Ownable {
     using Address for address;
+    using Counters for Counters.Counter;
 
-    // ERC-20 Minter contract
-    MinterNFT minter;
+    string public baseTokenURI = "ipfs://QmSWSp5WupP9D53gL3cFFga9Sobc4riqkDpFQqshL7k5mv"; // The base link that leads to the image / video of the token
 
-    // Starting and stopping sale and whitelist
-    bool public saleActive = true;
-    bool public whitelistActive = true;
+    // Minter Settings
+    address minter_contract_address; // We store the minter contract address
+    MinterNFT minter; // We store the minter contract 
+    Counters.Counter private _tokenIdCounter;
 
-    // Price of each token
-    uint256 public initial_price = 0.04 ether;
-    uint256 public price;
 
     // Maximum limit of tokens that can ever exist
-    uint256 public constant MAX_SUPPLY = 10000;
-    uint256 public constant MAX_MINT_PER_WALLET = 4;
+    // uint256 public constant MAX_SUPPLY = type(uint256).max;
 
-    // The base link that leads to the image / video of the token
-    string public baseTokenURI = "ipfs://QmSWSp5WupP9D53gL3cFFga9Sobc4riqkDpFQqshL7k5mv";
-
-    // List of addresses that have a number of reserved tokens for whitelist
-    mapping (address => uint256) public whitelistReserved;
-
-    constructor () ERC721 ("My NFT", "MNFT") {
-        price = initial_price;
+    constructor () ERC721 ("Friendcoin Bronze Membership Card", "BFRND") {
+        // price = initial_price;
     }
 
-    // Override so the openzeppelin tokenURI() method will use this method to create the full tokenURI instead
-    function _baseURI() internal view virtual override returns (string memory) {
-        return baseTokenURI;
+    modifier onlyMinter() {
+        require(msg.sender == minter_contract_address, "Only the minter can mint"); _;
     }
 
     // See which address owns which tokens
@@ -54,71 +45,27 @@ contract NFTCollection is ERC721Enumerable, Ownable {
         return tokensId;
     }
 
-    // Exclusive whitelist minting
-    function mintWhitelist(uint256 _amount) public payable {
-        uint256 supply = totalSupply();
-        uint256 reservedAmt = whitelistReserved[msg.sender];
-        require( whitelistActive,                   "Whitelist isn't active" );
-        require( reservedAmt > 0,                   "No tokens reserved for your address" );
-        require( _amount <= reservedAmt,            "Can't mint more than reserved" );
-        require( supply + _amount <= MAX_SUPPLY,    "Can't mint more than max supply" );
-        require( msg.value == price * _amount,      "Wrong amount of ETH sent" );
-        whitelistReserved[msg.sender] = reservedAmt - _amount;
-        for(uint256 i; i < _amount; i++){
-            _safeMint( msg.sender, supply + i );
-            minter.register(supply + i);
-        }
-    }
-
     // Standard mint function
-    function mint(uint256 _amount) public payable {
-        uint256 supply = totalSupply();
-        require( saleActive, "Sale isn't active" );
-        require( balanceOf(msg.sender) + _amount <= MAX_MINT_PER_WALLET, "Max mint per wallet exceeded!");
-        require( supply + _amount <= MAX_SUPPLY, "Can't mint more than max supply" );
-        require( msg.value == price * _amount, "Wrong amount of ETH sent" );
-        for(uint256 i; i < _amount; i++){
-            _safeMint( msg.sender, supply + i );
-            minter.register(supply + i);
-        }
+    function mint(address to) public onlyMinter { //onlyMinter
+        uint256 tokenId = _tokenIdCounter.current();
+        // require( saleActive, "Sale isn't active" );
+        // require( balanceOf(msg.sender) + _amount <= MAX_MINT_PER_WALLET, "Max mint per wallet exceeded!");
+        // require( supply + 1 <= MAX_SUPPLY, "Can't mint more than max supply" );
+        // require( msg.value == price * _amount, "Wrong amount of BNB sent" );
+        _safeMint(address(to), tokenId);
+        minter.register(tokenId);
+        _tokenIdCounter.increment();
     }
     
-    // Edit reserved whitelist spots
-    function editWhitelistReserved(address[] memory _a, uint256[] memory _amount) public onlyOwner {
-        for(uint256 i; i < _a.length; i++){
-            whitelistReserved[_a[i]] = _amount[i];
-        }
-    }
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory) {
+        require(_exists(_tokenId), "ERC721: invalid token ID");
 
-    // Start and stop whitelist
-    function setWhitelistActive(bool value) public onlyOwner {
-        whitelistActive = value;
-    }
-
-    // Start and stop sale
-    function setSaleActive(bool value) public onlyOwner {
-        saleActive = value;
-    }
-
-    // Set new baseURI
-    function setBaseURI(string memory baseURI) public onlyOwner {
-        baseTokenURI = baseURI;
-    }
-
-    // Set a different price in case ETH changes drastically
-    function setPrice(uint256 newPrice) public onlyOwner {
-        price = newPrice;
-    }
-
-    function withdrawETH() public onlyOwner
-    {
-        (bool sent, bytes memory data) = address(owner()).call{value: address(this).balance}("");
-        require(sent, "Failed to send Ether");
-        data;
+        return "ipfs://QmSWSp5WupP9D53gL3cFFga9Sobc4riqkDpFQqshL7k5mv";
     }
 
     // Set Minter contract address
-    function setMinter(address minter_contract_address) public onlyOwner {
-        minter = MinterNFT(minter_contract_address);
+    function setMinter(address contract_address) public onlyOwner {
+        minter = MinterNFT(contract_address);
+        minter_contract_address = contract_address;
     }
 }

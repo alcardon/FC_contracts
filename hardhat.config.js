@@ -1,7 +1,5 @@
 const {
-  mnemonic,
   privateKey,
-  infuraProjectId,
   bscscanApiKey,
 } = require("./secrets.json");
 
@@ -43,6 +41,8 @@ module.exports = {
   networks: {
     localhost: {
       url: "http://127.0.0.1:8545",
+      gasPrice: 12450000,
+      accounts: [privateKey],
     },
     hardhat: {},
     bsc: {

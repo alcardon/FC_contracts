@@ -6,7 +6,7 @@
     "clean": "npx hardhat clean",
     "compile": "npx hardhat compile",
     "deploy": "npx hardhat run scripts/deploy.js",
-    "verify": "npx hardhat verify --constructor-args arguments.js 0xFD8E2766c68BB8Da5a5AD5718724383fd9358bE6 --network rinkeby",
+    "verify": "npx hardhat verify 0x0693c876427CBfdc2D2E51dCa28ed5e9Db3a35D6 --network bsctestnet",
     "accounts": "npx hardhat accounts",
     "test": "npx hardhat test --network hardhat"
   },
@@ -18,7 +18,10 @@
     "chai": "^4.3.0",
     "ethereum-waffle": "^3.2.2",
     "ethers": "^5.0.31",
-    "hardhat": "^2.0.10",
+    "hardhat": "2.12.3",
     "ramda": "^0.27.1"
+  },
+  "dependencies": {
+    "@chainlink/contracts": "^0.5.1"
   }
 }

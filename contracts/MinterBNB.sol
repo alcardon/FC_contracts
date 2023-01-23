@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
+import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -23,15 +24,13 @@ contract NFTCollectionMinter {
 // estiable el token (done)
 // editable el reward per block (done)
 
-contract MinterBUSD is Ownable {
+contract MinterBNB is Ownable {
     AggregatorV3Interface internal priceFeed;
-    // address payable owner; // contract creator's address
+    // address owner; // contract creator's address
 
     address public NFT_CONTRACT_ADDRESS = 0x895E3C0C85A7593f5b4c993de546206ea1C75F52;
     address public TOKEN_CONTRACT_ADDRESS = 0x28FB2D8E2B652058e4Bc4377fA4Cb7f707eDa9dc;
     IERC20 tokenBUSD;
-
-    uint public REWARD_PER_BLOCK = 0.1 ether;
 
     // Starting and stopping token claims
     bool public claimActive = false;
@@ -120,22 +119,21 @@ contract MinterBUSD is Ownable {
         // nft_contract.mint(1);
     }
 
-    
+    event Received(address, uint);
+    receive() external payable {
+        lastReceivedAmount = msg.value;
+
+        emit Received(msg.sender, msg.value);
+    }
 
     function payFees(uint256 _tokenamount) public {
         uint256 depositBalance = GetUserTokenBalance(msg.sender);
         lastReceivedAmount = _tokenamount;
         require(_tokenamount <= depositBalance, "You cannot pay with money you do not have");
         require(_tokenamount >= membership_cost, "It is a minimum of 2 BUSD");
-        tokenBUSD.approve(msg.sender, _tokenamount);
-        tokenBUSD.transferFrom(msg.sender, address(this), _tokenamount);
-
-        // require(msg.value >= membership_price_bnb * (10**10), "Not Enough has been sent");
-
-        // require(msg.value >= membership_price_bnb * (10**10), "Not Enough has been sent");
+        // IERC20(tokenBUSD).approve(address(this), _tokenamount);
+        // tokenBUSD.transferFrom(msg.sender, address(this), _tokenamount);
         totalReceivedBNB = totalReceivedBNB + _tokenamount;
-        // (bool success,) = owner().call{value: msg.value}("");
-        // require(success, "Failed to send money");
     }
 
     function setCheckpoint(uint token_id) internal
